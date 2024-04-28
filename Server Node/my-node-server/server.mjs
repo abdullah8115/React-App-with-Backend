@@ -1,4 +1,3 @@
-// server.mjs
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -9,7 +8,8 @@ app.use(express.json());
 
 mongoose.connect('mongodb+srv://Admin-01:x44051kM6HwNdeKZ@cluster0.nxxkasw.mongodb.net/my-node-server?retryWrites=true&w=majority', {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  // useCreateIndex: true,
 }).then(() => {
   console.log("MongoDB connected");
 }).catch((err) => {
@@ -51,7 +51,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Endpoint to fetch user data
 app.get('/userData', async (req, res) => {
   try {
     const users = await Signup.find({});
