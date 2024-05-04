@@ -1,20 +1,26 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import bcrypt from "bcrypt";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://Admin-01:x44051kM6HwNdeKZ@cluster0.nxxkasw.mongodb.net/my-node-server?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  // useCreateIndex: true,
-}).then(() => {
-  console.log("MongoDB connected");
-}).catch((err) => {
-  console.error("MongoDB connection failed:", err.message);
-});
+mongoose
+  .connect(
+    "mongodb+srv://Admin-01:x44051kM6HwNdeKZ@cluster0.nxxkasw.mongodb.net/my-node-server?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
+  .then(() => {
+    console.log("MongoDB connected");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err.message);
+  });
 
 const signupSchema = new mongoose.Schema({
   fullname: String,
@@ -22,42 +28,58 @@ const signupSchema = new mongoose.Schema({
   password: String,
 });
 
-const Signup = mongoose.model('Signup', signupSchema);
+const Signup = mongoose.model("Signup", signupSchema);
 
-app.post('/signup', async (req, res) => {
+app.post("/signup", async (req, res) => {
+  const { fullname, email, password } = req.body;
+
   try {
-    const { fullname, email, password } = req.body;
-    const user = new Signup({ fullname, email, password });
+    const existingUser = await Signup.findOne({ email });
+    if (existingUser) {
+      return res.status(409).send("Email already in use");
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the saltRounds
+
+    const user = new Signup({ fullname, email, password: hashedPassword });
     await user.save();
-    res.status(201).send('Signup successful');
+    res.status(201).send("Signup successful");
   } catch (error) {
     console.error("Error during signup:", error.message);
-    res.status(500).send('Signup failed');
+    res.status(500).send("Signup failed");
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const existingUser = await Signup.findOne({ email, password });
+    const existingUser = await Signup.findOne({ email });
     if (existingUser) {
-      res.status(200).send('Login successful');
+      // Compare hashed password
+      const passwordMatch = await bcrypt.compare(password, existingUser.password);
+      if (passwordMatch) {
+        res.status(200).send("Login successful");
+      } else {
+        res.status(401).send("Invalid email or password");
+      }
     } else {
-      res.status(401).send('Invalid email or password');
+      res.status(401).send("Invalid email or password");
     }
   } catch (error) {
     console.error("Error during login:", error.message);
-    res.status(500).send('Login failed');
+    res.status(500).send("Login failed");
   }
 });
 
-app.get('/userData', async (req, res) => {
+// Endpoint to fetch user data
+app.get("/userData", async (req, res) => {
   try {
     const users = await Signup.find({});
     res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching user data:", error.message);
-    res.status(500).send('Failed to fetch user data');
+    res.status(500).send("Failed to fetch user data");
   }
 });
 

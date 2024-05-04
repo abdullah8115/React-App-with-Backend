@@ -12,6 +12,7 @@ const SignupForm = () => {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -29,9 +30,12 @@ const SignupForm = () => {
         },
         body: JSON.stringify(formData),
       });
+      
       if (response.ok) {
         alert("Signup successful");
         navigate("/form1");
+      } else if (response.status === 409) {
+        setError("Email already in use. Please use a different email.");
       } else {
         alert("Signup failed");
       }
@@ -62,6 +66,7 @@ const SignupForm = () => {
       <div className="login-container">
         <div className="login-form">
           <h2>Create a New Account</h2>
+          {error && <p className="error-message">{error}</p>}
           <form onSubmit={handleSubmit}>
             <label>
               Full Name:
