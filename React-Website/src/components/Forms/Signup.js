@@ -16,12 +16,12 @@ const SignupForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match.");
       return;
     }
-
+  
     try {
       const response = await fetch('http://localhost:5000/signup', {
         method: 'POST',
@@ -43,7 +43,7 @@ const SignupForm = () => {
       console.error("Error during signup:", error.message);
       alert("Signup failed");
     }
-  };
+  };  
 
   const handleChange = (event) => {
     const { name, value } = event.target;

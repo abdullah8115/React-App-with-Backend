@@ -1,26 +1,23 @@
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import bcrypt from "bcrypt";
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cookieParser = require('cookie-parser');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
-mongoose
-  .connect(
-    "mongodb+srv://Admin-01:x44051kM6HwNdeKZ@cluster0.nxxkasw.mongodb.net/my-node-server?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => {
-    console.log("MongoDB connected");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection failed:", err.message);
-  });
+mongoose.connect("mongodb+srv://Admin-01:x44051kM6HwNdeKZ@cluster0.nxxkasw.mongodb.net/my-node-server?retryWrites=true&w=majority", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log("MongoDB connected");
+}).catch((err) => {
+  console.error("MongoDB connection failed:", err.message);
+});
 
 const signupSchema = new mongoose.Schema({
   fullname: String,
@@ -39,12 +36,22 @@ app.post("/signup", async (req, res) => {
       return res.status(409).send("Email already in use");
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the saltRounds
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new Signup({ fullname, email, password: hashedPassword });
     await user.save();
-    res.status(201).send("Signup successful");
+
+    // Generate JWT
+    const token = jwt.sign({ email: user.email }, "your_secret_key");
+
+    // Send JWT in a cookie
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: true, // Only send over HTTPS
+      maxAge: 3600000, // 1 hour expiration
+    });
+
+    res.status(201).json({ message: "Signup successful" });
   } catch (error) {
     console.error("Error during signup:", error.message);
     res.status(500).send("Signup failed");
@@ -59,6 +66,16 @@ app.post("/login", async (req, res) => {
       // Compare hashed password
       const passwordMatch = await bcrypt.compare(password, existingUser.password);
       if (passwordMatch) {
+        // Generate JWT
+        const token = jwt.sign({ email: existingUser.email }, "your_secret_key");
+
+        // Send JWT in a cookie
+        res.cookie('jwt', token, {
+          httpOnly: true,
+          secure: true, // Only send over HTTPS
+          maxAge: 3600000, // 1 hour expiration
+        });
+
         res.status(200).send("Login successful");
       } else {
         res.status(401).send("Invalid email or password");
@@ -72,7 +89,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Endpoint to fetch user data
 app.get("/userData", async (req, res) => {
   try {
     const users = await Signup.find({});
