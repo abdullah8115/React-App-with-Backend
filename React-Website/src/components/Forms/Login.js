@@ -13,12 +13,12 @@ function LoginForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     if (!formData.email || !formData.password) {
       alert("Please fill in both email and password fields.");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:5000/login", {
         method: "POST",
@@ -27,19 +27,18 @@ function LoginForm() {
         },
         body: JSON.stringify(formData),
       });
-  
-      if (response.ok) {
-        alert("Login successful.");
+
+      let data =  await response.json();
+      if (data) {
+        console.log(data);
+        alert(data.message);
         navigate("/"); // Redirect to homepage upon successful login
-      } else {
-        const errorMessage = await response.text(); // Extract error message from response
-        alert(errorMessage);
       }
     } catch (error) {
       console.error("Error during login:", error);
       alert("An error occurred during login.");
     }
-  };  
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -53,11 +52,7 @@ function LoginForm() {
     <>
       <Navbar />
       <div className="login-imgbox1">
-        <img
-          className="login-image1"
-          src={loginformgirl}
-          alt="loginformgirl"
-        />
+        <img className="login-image1" src={loginformgirl} alt="loginformgirl" />
       </div>
       <div className="login-container">
         <div className="login-form">

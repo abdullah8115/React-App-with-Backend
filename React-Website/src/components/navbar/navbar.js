@@ -5,21 +5,13 @@ import "./navbar.css";
 
 function Navbar() {
   const { userData } = useContext(UserContext);
-  
+
+  console.log(userData)
   return (
     <div className="navbar">
       <span className="fasco">FASCO</span>
       <div>
-        <NavLink exact to="/" className="nav-link" activeClassName="active">
-          Home
-        </NavLink>
-
-        <NavLink to="/memo" className="nav-link" activeClassName="active">
-          Memo
-        </NavLink>
-        <NavLink to="/products" className="nav-link" activeClassName="active">
-          Products
-        </NavLink>
+        {!userData?.token ? (
           <>
             <NavLink to="/form1" className="nav-link" activeClassName="active">
               Log In
@@ -28,10 +20,31 @@ function Navbar() {
               Sign Up
             </NavLink>
           </>
-        {userData && userData.isLoggedIn && (
-          <NavLink to="/profile" className="nav-link" activeClassName="active">
-            Profile
-          </NavLink>
+        ) : (
+          <>
+            <NavLink exact to="/" className="nav-link" activeClassName="active">
+              Home
+            </NavLink>
+
+            <NavLink to="/memo" className="nav-link" activeClassName="active">
+              Memo
+            </NavLink>
+            <NavLink
+              to="/products"
+              className="nav-link"
+              activeClassName="active"
+            >
+              Products
+            </NavLink>
+
+            <NavLink
+              to="/profile"
+              className="nav-link"
+              activeClassName="active"
+            >
+              Profile
+            </NavLink>
+          </>
         )}
       </div>
     </div>
