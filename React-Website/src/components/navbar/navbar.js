@@ -6,7 +6,7 @@ import "./navbar.css";
 function Navbar() {
   const { userData } = useContext(UserContext);
 
-  console.log(userData)
+  console.log(userData);
   return (
     <div className="navbar">
       <span className="fasco">FASCO</span>
@@ -25,7 +25,6 @@ function Navbar() {
             <NavLink exact to="/" className="nav-link" activeClassName="active">
               Home
             </NavLink>
-
             <NavLink to="/memo" className="nav-link" activeClassName="active">
               Memo
             </NavLink>
