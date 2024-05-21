@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { UserContext } from "../User Context/UserContext";
 import Navbar from "../components/navbar/navbar";
+import LogoutButton from "../Log Out/logout";
 
 function Profile() {
   const { userData } = useContext(UserContext);
@@ -24,6 +25,8 @@ function Profile() {
       ) : (
         <p>No user data available</p>
       )}
+
+      <LogoutButton />
     </div>
   );
 }

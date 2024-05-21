@@ -35,7 +35,6 @@ function Navbar() {
             >
               Products
             </NavLink>
-
             <NavLink
               to="/profile"
               className="nav-link"

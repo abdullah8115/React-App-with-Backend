@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../navbar/navbar";
 import signupformgirl from "../Images/signupformgirl.jpg";
 import "./Signup.css";
+import { UserContext } from "../../User Context/UserContext";
 
 const SignupForm = () => {
   const navigate = useNavigate();
+  const { saveUserData } = useContext(UserContext);
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -16,12 +18,12 @@ const SignupForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match.");
       return;
     }
-  
+
     try {
       const response = await fetch('http://localhost:5000/signup', {
         method: 'POST',
@@ -30,10 +32,14 @@ const SignupForm = () => {
         },
         body: JSON.stringify(formData),
       });
-      
+
+      const data = await response.json();
       if (response.ok) {
         alert("Signup successful");
-        navigate("/form1");
+        
+        saveUserData({ token: data.token, email: formData.email, fullname: formData.fullname });
+
+        navigate("/");
       } else if (response.status === 409) {
         setError("Email already in use. Please use a different email.");
       } else {
@@ -43,7 +49,7 @@ const SignupForm = () => {
       console.error("Error during signup:", error.message);
       alert("Signup failed");
     }
-  };  
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -125,4 +131,4 @@ const SignupForm = () => {
   );
 };
 
-export default SignupForm;
+export default SignupForm; 

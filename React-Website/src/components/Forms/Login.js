@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Navbar from "../navbar/navbar";
 import loginformgirl from "../Images/loginformgirl.jpg";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../User Context/UserContext";
 
 function LoginForm() {
+  const { saveUserData } = useContext(UserContext);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -28,11 +30,18 @@ function LoginForm() {
         body: JSON.stringify(formData),
       });
 
-      let data =  await response.json();
-      if (data) {
+      const data = await response.json();
+      if (data && data.token) {
         console.log(data);
         alert(data.message);
-        navigate("/"); // Redirect to homepage upon successful login
+
+        // Save user data to context
+        saveUserData({ token: data.token, email: formData.email });
+
+        // Redirect to homepage upon successful login
+        navigate("/");
+      } else {
+        alert(data.message);
       }
     } catch (error) {
       console.error("Error during login:", error);

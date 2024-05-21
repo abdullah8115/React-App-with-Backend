@@ -108,6 +108,11 @@ app.get("/userData", async (req, res) => {
   }
 });
 
+app.post("/logout", async (req, res) => {
+  res.clearCookie("jwt");
+  res.redirect("/");
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
